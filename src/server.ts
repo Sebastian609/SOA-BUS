@@ -27,6 +27,15 @@ app.use("/api/auth",authRoutes.router);
 app.use("/api/users",authenticateToken, userRoutes.router);
 app.use("/api/events",eventRoutes.router);
 
+// Ruta de prueba para verificar JWT
+app.get("/api/test", authenticateToken, (req, res) => {
+  res.json({
+    message: "Token válido!",
+    user: (req as any).user,
+    timestamp: new Date().toISOString()
+  });
+});
+
 //app.use("/api/tickets",eventRoutes.router);
 //app.use("/api/sales",eventRoutes.router);
 

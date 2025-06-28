@@ -1,10 +1,12 @@
-
 import { Request, Response } from "express";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
 import { LoginUserDto, SafeUserDto } from "../dto/users.dto";
 import { validate } from "class-validator";
 import jwt from "jsonwebtoken";
+import { config } from "dotenv";
+
+config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
 
@@ -23,14 +25,38 @@ export class LoginController {
 
       const { email, password } = dto;
 
-      const response = await axios.post("http://localhost:2221/api/users/login", { email, password });
+      // Usar la URL correcta del servicio de usuarios
+      const userServiceUrl = process.env.USER_SERVICE_URL
+      
+      console.log(`Attempting to authenticate user: ${email}`);
+      console.log(`User service URL: ${userServiceUrl}`);
+
+      console.log(`${userServiceUrl}/users/login`);
+      
+
+      const response = await axios.post(`${userServiceUrl}/users/login`, { 
+        email, 
+        password 
+      });
 
       const user = response.data;
+      console.log(`User authenticated successfully: ${user.email}`);
+
       const safeUser = plainToInstance(SafeUserDto, user, { excludeExtraneousValues: true });
 
-      const token = jwt.sign({ id: user.id, email: user.email, rol: user.rol?.name }, JWT_SECRET, {
+      // Generar token JWT con información del usuario
+      const tokenPayload = {
+        id: user.id,
+        email: user.email,
+        rol: user.rol?.name || 'user',
+        iat: Math.floor(Date.now() / 1000)
+      };
+
+      const token = jwt.sign(tokenPayload, JWT_SECRET, {
         expiresIn: "1h",
       });
+
+      console.log(`JWT token generated successfully for user: ${user.email}`);
 
       return res.status(200).json({
         token,
@@ -38,8 +64,16 @@ export class LoginController {
       });
     } catch (error: any) {
       console.error("Login error:", error.message);
-      return res.status(error.response?.status || 500).json({
-        message: error
+      
+      if (error.response) {
+        console.error("Service response error:", error.response.data);
+        return res.status(error.response.status).json({
+          message: error.response.data?.message || "Error en el servicio de autenticación"
+        });
+      }
+      
+      return res.status(500).json({
+        message: "Error interno del servidor"
       });
     }
   }
