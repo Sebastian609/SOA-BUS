@@ -15,9 +15,9 @@ export class EventsRoutes {
   }
 
   private routes() {
-    // 🟢 Ruta libre: /api/events/event-locations
+
    this.router.use(
-  "/event-locations/paginated",
+  "/paginated",
   autenticatePartner,
   proxy(`${process.env.EVENT_SERVICE_URL}`, {
     proxyReqPathResolver: req => req.originalUrl, // 👈 evita duplicar el path

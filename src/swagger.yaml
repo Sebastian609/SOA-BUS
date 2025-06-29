@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: SOA-BUS Service Bus API Gateway
+  description: >
+    API Gateway para arquitectura SOA. Orquesta y expone servicios de usuarios, eventos, tickets, ventas y partners.
+  version: 1.0.0
+  contact:
+    name: Equipo SOA-BUS
+    email: soporte@soa-bus.com
+servers:
+  - url: http://localhost:2222/api
+    description: Local Gateway
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: usuario@ejemplo.com
+        password:
+          type: string
+          example: 123456
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            lastname:
+              type: string
+            email:
+              type: string
+            isActive:
+              type: boolean
+            rol:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+    CreateSaleRequest:
+      type: object
+      required:
+        - userId
+        - eventLocationId
+        - quantity
+        - partnerToken
+      properties:
+        userId:
+          type: integer
+          description: ID del usuario que realiza la compra
+          example: 1
+        eventLocationId:
+          type: integer
+          description: ID de la ubicación del evento
+          example: 5
+        quantity:
+          type: integer
+          description: Cantidad de tickets a comprar
+          minimum: 1
+          example: 2
+        partnerToken:
+          type: string
+          description: Token de validación del partner
+          example: "partner_token_123"
+    CreateSaleResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Venta creada exitosamente"
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: ID de la venta
+            userId:
+              type: integer
+              description: ID del usuario
+            totalAmount:
+              type: number
+              description: Monto total de la venta
+            status:
+              type: string
+              description: Estado de la venta
+            createdAt:
+              type: string
+              format: date-time
+              description: Fecha de creación
+            saleDetails:
+              type: array
+              items:
+                type: object
+                properties:
+                  ticketId:
+                    type: integer
+                  amount:
+                    type: number
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Login de usuario
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flows/create-sale:
+    post:
+      summary: Crear venta con orquestación completa
+      description: >
+        Orquesta el proceso completo de creación de venta:
+        1. Valida disponibilidad del evento
+        2. Verifica token del partner
+        3. Genera tickets
+        4. Crea la venta con detalles
+      tags: [Flows]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSaleRequest'
+      responses:
+        '201':
+          description: Venta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSaleResponse'
+        '400':
+          description: Datos de venta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token de autenticación inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Token de partner inválido o evento no disponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      summary: Proxy a User Service (protegido)
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Respuesta del User Service
+        '401':
+          description: Token inválido
+
+  /events:
+    get:
+      summary: Proxy a Event Service
+      tags: [Events]
+      responses:
+        '200':
+          description: Respuesta del Event Service
+
+  /tickets:
+    get:
+      summary: Proxy a Ticket Service (protegido)
+      tags: [Tickets]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Respuesta del Ticket Service
+        '401':
+          description: Token inválido
+
+  /sales:
+    get:
+      summary: Proxy a Sale Service (protegido)
+      tags: [Sales]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Respuesta del Sale Service
+        '401':
+          description: Token inválido
+
+  /partners/token:
+    get:
+      summary: Validación de token de partner
+      tags: [Partners]
+      parameters:
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Token de partner
+      responses:
+        '200':
+          description: Token válido
+        '403':
+          description: Token inválido
+
+  /test:
+    get:
+      summary: Ruta de prueba para validar JWT
+      tags: [Test]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token válido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                  timestamp:
+                    type: string
+        '401':
+          description: Token inválido 

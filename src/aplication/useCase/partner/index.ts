@@ -1,0 +1,1 @@
+export { CheckPartnerUseCase } from './checkPartner.useCase'; 

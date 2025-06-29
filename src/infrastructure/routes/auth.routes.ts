@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { LoginController } from "../controller/login.controller";
+import { LoginFlow } from "../orquestation/login.flow";
 
 export class AuthRoutes {
     public router: Router;
-    private controller: LoginController;
+    private controller: LoginFlow;
 
     constructor() {
         this.router = Router();
-        this.controller = new LoginController();
+        this.controller = new LoginFlow();
         this.routes();
     }
 
