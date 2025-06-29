@@ -55,13 +55,14 @@ components:
                   type: integer
                 name:
                   type: string
-    CreateSaleRequest:
+    CreateSaleFlowRequest:
       type: object
       required:
         - userId
         - eventLocationId
         - quantity
         - partnerToken
+        - cardHash
       properties:
         userId:
           type: integer
@@ -79,7 +80,11 @@ components:
         partnerToken:
           type: string
           description: Token de validación del partner
-          example: "partner_token_123"
+          example: "7a2a63cef3e1b4f181fa23b212303b2f"
+        cardHash:
+          type: string
+          description: Hash de la tarjeta de crédito para el pago
+          example: "hash_tarjeta_abc123"
     CreateSaleResponse:
       type: object
       properties:
@@ -121,6 +126,64 @@ components:
           type: string
         error:
           type: string
+    CreateSaleRequest:
+      type: object
+      required:
+        - userId
+        - partnerId
+        - totalAmount
+        - saleDetails
+      properties:
+        userId:
+          type: integer
+          description: ID del usuario que realiza la compra
+          example: 1
+        partnerId:
+          type: integer
+          description: ID del partner asociado
+          example: 3
+        totalAmount:
+          type: number
+          description: Monto total de la venta
+          example: 100.00
+        saleDetails:
+          type: array
+          description: Lista de detalles de la venta
+          items:
+            $ref: '#/components/schemas/SaleDetail'
+    SaleDetail:
+      type: object
+      required:
+        - ticketId
+        - amount
+      properties:
+        ticketId:
+          type: integer
+          description: ID del ticket
+          example: 1
+        amount:
+          type: number
+          description: Monto del ticket
+          example: 25.50
+    Partner:
+      type: object
+      required:
+        - id
+        - name
+        - lastname
+      properties:
+        id:
+          type: integer
+          description: ID del partner
+          example: 3
+        name:
+          type: string
+          description: Nombre del partner
+          example: "Juan"
+        lastname:
+          type: string
+          description: Apellido del partner
+          example: "Pérez"
 
 security:
   - BearerAuth: []
@@ -167,7 +230,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateSaleRequest'
+              $ref: '#/components/schemas/CreateSaleFlowRequest'
       responses:
         '201':
           description: Venta creada exitosamente
@@ -189,6 +252,47 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Token de partner inválido o evento no disponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /sales/create:
+    post:
+      summary: Crear venta directamente
+      description: >
+        Crea una venta directamente con los datos proporcionados.
+        Requiere que los tickets ya existan y estén validados.
+      tags: [Sales]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSaleRequest'
+      responses:
+        '201':
+          description: Venta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSaleResponse'
+        '400':
+          description: Datos de venta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token de autenticación inválido
           content:
             application/json:
               schema:
