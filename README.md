@@ -142,7 +142,8 @@ curl -X POST http://localhost:2222/api/flows/create-sale \
     "userId": 1,
     "eventLocationId": 5,
     "quantity": 2,
-    "partnerToken": "partner_token_123"
+    "partnerToken": "7a2a63cef3e1b4f181fa23b212303b2f",
+    "cardHash": "hash_tarjeta_abc123"
   }'
 ```
 
@@ -170,12 +171,86 @@ curl -X POST http://localhost:2222/api/flows/create-sale \
 }
 ```
 
+### Direct Sale Creation (`POST /api/sales/create`)
+
+Crea una venta directamente con datos pre-validados:
+
+**Ejemplo de uso:**
+```bash
+curl -X POST http://localhost:2222/api/sales/create \
+  -H "Authorization: Bearer <JWT_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "partnerId": 3,
+    "totalAmount": 100.00,
+    "saleDetails": [
+      {
+        "ticketId": 1,
+        "amount": 25.50
+      },
+      {
+        "ticketId": 2,
+        "amount": 74.50
+      }
+    ]
+  }'
+```
+
 ### Login Flow (`POST /api/auth/login`)
 
 Proceso de autenticación que:
 1. Valida credenciales con el User Service
 2. Genera token JWT
 3. Retorna información segura del usuario
+
+---
+
+## 📋 DTOs (Data Transfer Objects)
+
+Los DTOs definen la estructura de datos para las operaciones de la API:
+
+### CreateSaleFlowDto
+Usado para orquestación de ventas:
+```typescript
+{
+  partnerToken: string;     // Token del partner
+  userId: number;           // ID del usuario
+  quantity: number;         // Cantidad de tickets
+  eventLocationId: number;  // ID de ubicación del evento
+  cardHash: string;         // Hash de la tarjeta
+}
+```
+
+### CreateSaleDto
+Usado para creación directa de ventas:
+```typescript
+{
+  userId: number;           // ID del usuario
+  partnerId: number;        // ID del partner
+  totalAmount: number;      // Monto total
+  saleDetails: SaleDetail[]; // Detalles de la venta
+}
+```
+
+### SaleDetailDto
+Detalle individual de una venta:
+```typescript
+{
+  ticketId: number;         // ID del ticket
+  amount: number;           // Monto del ticket
+}
+```
+
+### PartnerDto
+Información básica del partner:
+```typescript
+{
+  id: number;               // ID del partner
+  name: string;             // Nombre
+  lastname: string;         // Apellido
+}
+```
 
 ---
 
@@ -203,7 +278,7 @@ curl -X POST http://localhost:2222/api/auth/login -H "Content-Type: application/
 curl -X GET http://localhost:2222/api/test -H "Authorization: Bearer <TOKEN>"
 
 # Crear venta con orquestación
-curl -X POST http://localhost:2222/api/flows/create-sale -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" -d '{"userId":1,"eventLocationId":5,"quantity":2,"partnerToken":"partner_token_123"}'
+curl -X POST http://localhost:2222/api/flows/create-sale -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" -d '{"userId":1,"eventLocationId":5,"quantity":2,"partnerToken":"7a2a63cef3e1b4f181fa23b212303b2f","cardHash":"hash_tarjeta_abc123"}'
 ```
 
 ---
