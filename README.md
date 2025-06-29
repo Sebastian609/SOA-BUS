@@ -98,6 +98,8 @@ Un **Service Bus** moderno basado en Node.js, TypeScript y Express, que actúa c
    npm run dev
    # o para producción
    npm run build && npm start
+   # o usar el comando combinado
+   npm run start:prod
    ```
 
 ---
@@ -284,8 +286,12 @@ curl -X POST http://localhost:2222/api/flows/create-sale -H "Authorization: Bear
 ---
 
 ## 🛠️ Scripts útiles
-- `npm run dev` — Modo desarrollo
-- `npm run build && npm start` — Producción
+- `npm run dev` — Modo desarrollo con hot reload
+- `npm run build` — Compilar TypeScript a JavaScript y copiar assets
+- `npm run start` — Ejecutar aplicación compilada (requiere build previo)
+- `npm run start:prod` — Compilar y ejecutar en producción
+- `npm run clean` — Limpiar carpeta dist
+- `npm run copy-assets` — Copiar archivos de assets al dist
 - `npm run verify:routes` — Verifica que todas las SERVICE_URL tengan rutas asociadas
 
 ---

@@ -4,6 +4,7 @@ import path from 'path';
 import { Express } from 'express';
 
 export function setupSwagger(app: Express) {
-  const swaggerDocument = YAML.load(path.join(__dirname, '..', '..', 'swagger.yaml'));
+  const swaggerPath = path.resolve(__dirname, 'swagger.yaml');
+  const swaggerDocument = YAML.load(swaggerPath);
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 }
