@@ -1,5 +1,5 @@
 import { Expose, Type } from "class-transformer";
-import { IsNumber, IsString, IsBoolean, IsDateString, ValidateNested, isNumber } from "class-validator";
+import { IsNumber, IsString, IsBoolean, IsDateString, ValidateNested } from "class-validator";
 import { EventDto } from "./event.dto";
 import { LocationDto } from "./location.dto";
 

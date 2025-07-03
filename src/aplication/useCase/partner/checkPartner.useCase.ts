@@ -20,12 +20,13 @@ export class CheckPartnerUseCase {
 
     try {
       const response = await axios.get(`${partnerServiceUrl}/partners/token/${token}`);
+      console.log(response.data);
       
-      const verificationDto = plainToInstance(PartnerVerificationDto, response.data, { 
+      const verificationDto = plainToInstance(PartnerVerificationDto, response.data.partner, { 
         excludeExtraneousValues: true 
       });
 
-      if (!verificationDto.success) {
+      if (!response.data.success) {
         throw new PartnerTokenInvalidError();
       }
 

@@ -38,7 +38,7 @@ const flowRoutes = new FlowsRoutes()
 //puente a los demas servicios
 app.use("/api/auth",authRoutes.router);
 app.use("/api/users", authenticateToken, userRoutes.router);
-app.use("/api/events",authenticateToken, eventRoutes.router);
+app.use("/api/events", eventRoutes.router);
 app.use("/api/tickets", authenticateToken,ticketsRoutes.router);
 app.use("/api/sales", authenticateToken,salesRoutes.router);
 app.use("/api/partners", authenticateToken,partnersRoutes.router);

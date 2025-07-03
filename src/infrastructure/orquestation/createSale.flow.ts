@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { CreateSaleDto } from "../../aplication/useCase/sale/dto/createSale.dto";
+import { CreateSaleDto, CreateSaleFlowDto } from "../../aplication/useCase/sale/dto/createSale.dto";
 import { CreateSaleUseCase } from "../../aplication/useCase/sale/createSale.useCase";
 import {
   CheckEventAvailabilityUseCase,
@@ -17,6 +17,7 @@ import { GenerateTicketsUseCase } from "../../aplication/useCase/ticket";
 import { EventLocationDto } from "../../aplication/useCase/event/dto/eventLocation.dto";
 import { CreateSaleDetailDto } from "../../aplication/useCase/sale/dto/saleDetail.dto";
 import { TicketDto } from "../../aplication/useCase/ticket/dto/ticket.dto";
+import { log } from "console";
 
 export class CreateSaleFlow {
   private createSaleUseCase: CreateSaleUseCase;
@@ -81,8 +82,19 @@ export class CreateSaleFlow {
           amount: eventLocation.price,
         };
         saleDetail.push(item);
-        totalPrice += eventLocation.price;
+        totalPrice += Number(eventLocation.price);
       });
+
+      const newSale = new CreateSaleFlowDto;
+   
+     newSale.eventLocationId = dto.eventLocationId
+     newSale.partnerId = partnerAvailable.id  
+     newSale.totalAmount = totalPrice
+     newSale.userId = dto.userId
+     newSale.saleDetails = saleDetail
+
+    
+     return res.status(200).json( await this.createSaleUseCase.execute(newSale))
 
 
 

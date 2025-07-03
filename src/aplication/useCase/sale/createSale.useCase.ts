@@ -1,9 +1,9 @@
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
-import { CreateSaleDto } from "./dto/createSale.dto";
+import { CreateSaleDto, CreateSaleFlowDto } from "./dto/createSale.dto";
 
 export class CreateSaleUseCase {
-  async execute(saleData: CreateSaleDto) {
+  async execute(saleData: CreateSaleFlowDto) {
     const saleServiceUrl = process.env.SALE_SERVICE_URL;
     if (!saleServiceUrl) {
       throw new Error("SALE_SERVICE_URL is not defined in environment variables");

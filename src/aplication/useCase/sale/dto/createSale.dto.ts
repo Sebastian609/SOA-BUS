@@ -31,15 +31,44 @@ export class CreateSaleDto {
   @Expose()
   eventLocationId: number;
 
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => CreateSaleDetailDto)
-  @Expose()
-  saleDetails: CreateSaleDetailDto;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(1)
   @Expose()
   cardHash: string;
+} 
+
+
+export class CreateSaleFlowDto {
+
+  @Expose()
+  partnerId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @IsPositive()
+  @Expose()
+  userId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @IsPositive()
+  @Expose()
+  quantity: number;
+
+  totalAmount: number
+  
+
+  @IsNotEmpty()
+  @IsNumber()
+  @IsPositive()
+  @Expose()
+  eventLocationId: number;
+
+
+  @ValidateNested()
+  @Type(() => CreateSaleDetailDto)
+  @Expose()
+  saleDetails: CreateSaleDetailDto[];
 } 
