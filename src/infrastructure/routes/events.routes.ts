@@ -15,26 +15,52 @@ export class EventsRoutes {
   }
 
   private routes() {
+    // 🔓 Rutas públicas (requieren token de partner)
     this.router.use(
       "/paginated",
+      autenticatePartner,
       proxy(`${process.env.EVENT_SERVICE_URL}`, {
-        proxyReqPathResolver: (req) => req.originalUrl, // 👈 evita duplicar el path
+        proxyReqPathResolver: req => {
+          const cleanedPath = req.originalUrl;
+          const finalTarget = `${process.env.EVENT_SERVICE_URL}${cleanedPath}`;
+          console.log("🔓 [PUBLIC - PARTNER] Proxying request:");
+          console.log("  🔸 Method:", req.method);
+          console.log("  🔸 Original URL:", req.originalUrl);
+          console.log("  🔸 Cleaned Path:", cleanedPath);
+          console.log("  🎯 Final Target URL:", finalTarget);
+          return cleanedPath;
+        },
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+          // 🔥 fuerza a que no acepte contenido comprimido
+          proxyReqOpts.headers['accept-encoding'] = 'identity';
+          return proxyReqOpts;
+        },
         userResDecorator: async (proxyRes, proxyResData, req, res) => {
           try {
             return JSON.parse(proxyResData.toString("utf8"));
           } catch (err) {
             return proxyResData.toString("utf8");
           }
-        },
+        }
       })
+      
     );
 
-    // 🔒 Todas las demás rutas: protegidas
+    // 🔒 Todas las demás rutas protegidas con JWT
     this.router.use(
       "/",
       authenticateToken,
-      proxy(process.env.EVENT_SERVICE_URL, {
-        proxyReqPathResolver: (req) => req.originalUrl,
+      proxy(`${process.env.EVENT_SERVICE_URL}`, {
+        proxyReqPathResolver: req => {
+          const cleanedPath = req.originalUrl;
+          const finalTarget = `${process.env.EVENT_SERVICE_URL}${cleanedPath}`;
+          console.log("🔒 [PROTECTED - AUTH] Proxying request:");
+          console.log("  🔸 Method:", req.method);
+          console.log("  🔸 Original URL:", req.originalUrl);
+          console.log("  🔸 Cleaned Path:", cleanedPath);
+          console.log("  🎯 Final Target URL:", finalTarget);
+          return cleanedPath;
+        }
       })
     );
   }

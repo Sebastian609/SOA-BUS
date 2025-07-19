@@ -55,6 +55,8 @@ app.get("/api/test", authenticateToken, (req, res) => {
 });
 
 app.listen(PORT, () => {
+  console.log(`-${process.env.EVENT_SERVICE_URL}`);
+  
   console.log(`API Gateway corriendo en http://localhost:${PORT}`);
   console.log(`Swagger UI disponible en http://localhost:${PORT}/api/docs`);
 });
