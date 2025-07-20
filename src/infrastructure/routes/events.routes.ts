@@ -60,6 +60,18 @@ export class EventsRoutes {
           console.log("  🔸 Cleaned Path:", cleanedPath);
           console.log("  🎯 Final Target URL:", finalTarget);
           return cleanedPath;
+        },
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+          // 🔥 fuerza a que no acepte contenido comprimido
+          proxyReqOpts.headers['accept-encoding'] = 'identity';
+          return proxyReqOpts;
+        },
+        userResDecorator: async (proxyRes, proxyResData, req, res) => {
+          try {
+            return JSON.parse(proxyResData.toString("utf8"));
+          } catch (err) {
+            return proxyResData.toString("utf8");
+          }
         }
       })
     );

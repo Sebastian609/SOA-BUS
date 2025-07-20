@@ -1,8 +1,5 @@
-// api-gateway/src/infrastructure/routes/partners.routes.ts
+// api-gateway/src/infrastructure/routes/flows.routes.ts
 import { Router } from "express";
-import proxy from "express-http-proxy";
-import { authenticateToken } from "../middleware/authJwt";
-import { autenticatePartner } from "../middleware/authPartnerToken";
 import { CreateSaleFlow } from "../orquestation/createSale.flow";
 
 

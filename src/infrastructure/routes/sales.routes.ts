@@ -23,7 +23,21 @@ export class SalesRoutes {
       "/",
       authenticateToken,
       proxy(SALE_SERVICE_URL, {
-        proxyReqPathResolver: req => req.originalUrl,
+        proxyReqPathResolver: req => {
+          const cleanedPath = req.originalUrl;
+          const finalTarget = `${SALE_SERVICE_URL}${cleanedPath}`;
+          console.log("💰 [SALE SERVICE] Proxying request:");
+          console.log("  🔸 Method:", req.method);
+          console.log("  🔸 Original URL:", req.originalUrl);
+          console.log("  🔸 Cleaned Path:", cleanedPath);
+          console.log("  🎯 Final Target URL:", finalTarget);
+          return cleanedPath;
+        },
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+          // 🔥 fuerza a que no acepte contenido comprimido
+          proxyReqOpts.headers['accept-encoding'] = 'identity';
+          return proxyReqOpts;
+        },
         userResDecorator: async (proxyRes, proxyResData, req, res) => {
           try {
             return JSON.parse(proxyResData.toString("utf8"));
