@@ -18,7 +18,7 @@ export class EventsRoutes {
     // 🔓 Rutas públicas (requieren token de partner)
     this.router.use(
       "/paginated",
-      autenticatePartner,
+      //autenticatePartner,
       proxy(`${process.env.EVENT_SERVICE_URL}`, {
         proxyReqPathResolver: req => {
           const cleanedPath = req.originalUrl;
@@ -49,7 +49,7 @@ export class EventsRoutes {
     // 🔒 Todas las demás rutas protegidas con JWT
     this.router.use(
       "/",
-      //authenticateToken,
+      authenticateToken,
       proxy(`${process.env.EVENT_SERVICE_URL}`, {
         proxyReqPathResolver: req => {
           const cleanedPath = req.originalUrl;
