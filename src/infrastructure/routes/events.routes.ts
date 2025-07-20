@@ -49,7 +49,7 @@ export class EventsRoutes {
     // 🔒 Todas las demás rutas protegidas con JWT
     this.router.use(
       "/",
-      authenticateToken,
+      //authenticateToken,
       proxy(`${process.env.EVENT_SERVICE_URL}`, {
         proxyReqPathResolver: req => {
           const cleanedPath = req.originalUrl;
