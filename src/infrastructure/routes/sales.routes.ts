@@ -21,7 +21,6 @@ export class SalesRoutes {
     // 🔒 Todas las rutas de ventas requieren autenticación
     this.router.use(
       "/",
-      authenticateToken,
       proxy(SALE_SERVICE_URL, {
         proxyReqPathResolver: req => {
           const cleanedPath = req.originalUrl;
